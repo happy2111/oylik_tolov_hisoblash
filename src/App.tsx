@@ -45,13 +45,59 @@ function CurrencySwitch({
   )
 }
 
+function IconClear() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9zm-1 12h12a1 1 0 0 0 1-1V8H5v12a1 1 0 0 0 1 1z"
+      />
+    </svg>
+  )
+}
+
+function IconShare() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a3.1 3.1 0 0 0 0-1.39l7.02-4.11A2.99 2.99 0 1 0 14 5a3 3 0 0 0 .13.84L7.11 9.95a3 3 0 1 0 0 4.1l7.05 4.13c-.1.27-.16.56-.16.86a3 3 0 1 0 3-3z"
+      />
+    </svg>
+  )
+}
+
+function IconCopy() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16h-9V7h9v14z"
+      />
+    </svg>
+  )
+}
+
+function IconPhoto() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"
+      />
+    </svg>
+  )
+}
+
 export default function App() {
   const [screen, setScreen] = useState<Screen>('calc')
   const [settings, setSettings] = useState<InstallmentSettings | null>(null)
   const [currency, setCurrency] = useState<CurrencyMode>('usd')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [busyAction, setBusyAction] = useState<'share' | 'export' | null>(null)
+  const [busyAction, setBusyAction] = useState<'share' | 'copy' | 'export' | null>(
+    null,
+  )
 
   const [priceInput, setPriceInput] = useState('1000')
   const [initialPayment, setInitialPayment] = useState(0)
@@ -278,6 +324,18 @@ export default function App() {
     }
   }
 
+  const handleCopy = async () => {
+    setBusyAction('copy')
+    try {
+      await navigator.clipboard.writeText(shareText)
+      window.alert('Nusxalandi')
+    } catch {
+      window.alert('Nusxa olib bo‘lmadi')
+    } finally {
+      setBusyAction(null)
+    }
+  }
+
   if (loading) {
     return (
       <div className="app shell">
@@ -342,22 +400,36 @@ export default function App() {
           </div>
         </div>
 
-        <div className="action-row">
+        <div className="icon-action-row">
           <button
             type="button"
-            className="btn-secondary"
+            className="icon-action"
             disabled={busyAction !== null || schedule.length === 0}
             onClick={() => void handleShare()}
+            aria-label="Ulashish"
+            title="Ulashish"
           >
-            {busyAction === 'share' ? '...' : 'Ulashish'}
+            <IconShare />
           </button>
           <button
             type="button"
-            className="btn-primary"
+            className="icon-action"
+            disabled={busyAction !== null || schedule.length === 0}
+            onClick={() => void handleCopy()}
+            aria-label="Nusxa olish"
+            title="Nusxa olish"
+          >
+            <IconCopy />
+          </button>
+          <button
+            type="button"
+            className="icon-action"
             disabled={busyAction !== null || schedule.length === 0}
             onClick={() => void handleExportPhoto()}
+            aria-label="Foto eksport"
+            title="Foto eksport"
           >
-            {busyAction === 'export' ? '...' : 'Foto eksport'}
+            <IconPhoto />
           </button>
         </div>
       </div>
@@ -365,17 +437,23 @@ export default function App() {
   }
 
   return (
-    <div className="app shell">
+    <div className="app shell calc-screen">
       <div className="toolbar">
+        <button
+          type="button"
+          className="icon-btn danger"
+          onClick={handleClear}
+          aria-label="Tozalash"
+          title="Tozalash"
+        >
+          <IconClear />
+        </button>
         <CurrencySwitch value={currency} onChange={setCurrency} />
       </div>
 
       <section className="card">
         <div className="card-top">
           <span className="label">MAHSULOT TANNARXI</span>
-          <button type="button" className="link-danger" onClick={handleClear}>
-            TOZALASH
-          </button>
         </div>
         <div className="price-row">
           {currency === 'usd' ? <span className="currency">$</span> : null}
@@ -477,7 +555,7 @@ export default function App() {
 
       <button
         type="button"
-        className="btn-primary"
+        className="cta-bar"
         disabled={calc.monthly <= 0}
         onClick={() => setScreen('schedule')}
       >
