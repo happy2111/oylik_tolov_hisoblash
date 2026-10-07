@@ -1,8 +1,6 @@
-import { getCurrencySymbol } from './lib/erp'
-
 export function GET() {
   return Response.json(
-    { currencySymbol: getCurrencySymbol() },
+    { currencySymbol: process.env.CURRENCY_SYMBOL || '$' },
     {
       headers: {
         'Cache-Control': 's-maxage=60, stale-while-revalidate=300',
