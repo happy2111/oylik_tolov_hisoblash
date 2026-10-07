@@ -8,6 +8,10 @@
   --blue: #0a84ff;
   --danger: #ff6b8a;
   --line: #2c2c2e;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 160ms;
+  --dur: 240ms;
+  --dur-slow: 320ms;
   font-family:
     Inter,
     system-ui,
@@ -114,14 +118,35 @@ input {
 }
 
 .currency-switch {
-  display: inline-flex;
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
   padding: 3px;
   border-radius: 999px;
   background: #2c2c2e;
-  gap: 2px;
+  gap: 0;
+}
+
+.currency-pill {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  border-radius: 999px;
+  background: #fff;
+  transition: transform var(--dur) var(--ease-out);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.currency-switch.currency-uzs .currency-pill {
+  transform: translateX(100%);
 }
 
 .currency-switch button {
+  position: relative;
+  z-index: 1;
   border: 0;
   background: transparent;
   color: var(--muted);
@@ -132,10 +157,10 @@ input {
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
+  transition: color var(--dur-fast) ease;
 }
 
 .currency-switch button.active {
-  background: #fff;
   color: #000;
 }
 
@@ -357,6 +382,10 @@ input {
   cursor: pointer;
   position: relative;
   z-index: 1;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) ease,
+    filter var(--dur-fast) ease;
 }
 
 .cta-bar:disabled {
@@ -365,6 +394,7 @@ input {
 }
 
 .cta-bar:active:not(:disabled) {
+  transform: scale(0.99);
   filter: brightness(0.96);
 }
 
@@ -377,6 +407,7 @@ input {
   align-items: flex-end;
   justify-content: center;
   padding: 16px;
+  animation: fade-in var(--dur) ease both;
 }
 
 .preview-sheet {
@@ -387,6 +418,7 @@ input {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  animation: sheet-up var(--dur-slow) var(--ease-out) both;
 }
 
 .preview-hint {
@@ -423,6 +455,10 @@ input {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) ease,
+    opacity var(--dur-fast) ease;
 }
 
 .icon-action:disabled {
@@ -431,6 +467,7 @@ input {
 }
 
 .icon-action:active:not(:disabled) {
+  transform: scale(0.94);
   background: #2c2c2e;
 }
 
@@ -492,6 +529,14 @@ input {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) ease,
+    opacity var(--dur-fast) ease;
+}
+
+.icon-btn:active {
+  transform: scale(0.94);
 }
 
 .icon-btn.danger {
@@ -573,5 +618,119 @@ input {
 
   .schedule-top h1 {
     font-size: 17px;
+  }
+}
+
+/* —— Motion (light, responsive) —— */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pop-soft {
+  from {
+    opacity: 0.35;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.anim-screen {
+  animation: fade-in var(--dur) ease both;
+}
+
+.anim-item {
+  animation: fade-up var(--dur-slow) var(--ease-out) both;
+}
+
+.calc-panel .anim-item:nth-child(1) {
+  animation-delay: 20ms;
+}
+.calc-panel .anim-item:nth-child(2) {
+  animation-delay: 50ms;
+}
+.calc-panel .anim-item:nth-child(3) {
+  animation-delay: 80ms;
+}
+.calc-panel .anim-item:nth-child(4) {
+  animation-delay: 110ms;
+}
+.calc-panel .anim-item:nth-child(5) {
+  animation-delay: 140ms;
+}
+
+.schedule-screen > .anim-item:nth-child(1) {
+  animation-delay: 20ms;
+}
+.schedule-screen > .anim-item:nth-child(2) {
+  animation-delay: 60ms;
+}
+.schedule-screen > .icon-action-row.anim-item {
+  animation-delay: 120ms;
+}
+
+.anim-row {
+  animation: fade-up var(--dur) var(--ease-out) both;
+}
+
+.anim-pop {
+  animation: pop-soft var(--dur-fast) var(--ease-out) both;
+}
+
+.range {
+  transition: opacity var(--dur-fast) ease;
+}
+
+.pill,
+.accent-blue,
+.monthly,
+.jami-value {
+  transition: color var(--dur-fast) ease;
+}
+
+.card {
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .currency-pill {
+    transition: none;
   }
 }

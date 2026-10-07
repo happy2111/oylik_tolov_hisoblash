@@ -27,7 +27,12 @@ function CurrencySwitch({
   onChange: (v: CurrencyMode) => void
 }) {
   return (
-    <div className="currency-switch" role="group" aria-label="Valyuta">
+    <div
+      className={`currency-switch currency-${value}`}
+      role="group"
+      aria-label="Valyuta"
+    >
+      <span className="currency-pill" aria-hidden="true" />
       <button
         type="button"
         className={value === 'usd' ? 'active' : ''}
@@ -388,8 +393,8 @@ export default function App() {
 
   if (screen === 'schedule') {
     return (
-      <div className="app shell schedule-screen">
-        <header className="schedule-header">
+      <div className="app shell schedule-screen anim-screen" key="schedule">
+        <header className="schedule-header anim-item">
           <div className="schedule-top">
             <button
               type="button"
@@ -404,9 +409,9 @@ export default function App() {
           </div>
         </header>
 
-        <div className="card schedule-export" ref={scheduleRef}>
+        <div className="card schedule-export anim-item" ref={scheduleRef}>
           <div className="schedule-export-title">To‘lov grafigi</div>
-          <div className="schedule-meta">
+          <div className="schedule-meta" key={`meta-${currency}`}>
             {calc.months} oy · oylik {formatMoney(calc.monthly, currency)}
           </div>
           <div className="schedule-table-head">
@@ -415,11 +420,15 @@ export default function App() {
             <span className="right">SUMMA ({currencyLabel(currency)})</span>
           </div>
           <div className="schedule-rows">
-            {schedule.map((row) => (
-              <div key={row.index} className="schedule-row">
+            {schedule.map((row, i) => (
+              <div
+                key={row.index}
+                className="schedule-row anim-row"
+                style={{ animationDelay: `${80 + i * 45}ms` }}
+              >
                 <span className="muted">{row.index}</span>
                 <span className="date">{row.dateLabel}</span>
-                <span className="amount">
+                <span className="amount" key={`${currency}-${row.index}`}>
                   {formatMoney(row.amount, currency)}
                 </span>
               </div>
@@ -427,7 +436,7 @@ export default function App() {
           </div>
         </div>
 
-        <div className="icon-action-row">
+        <div className="icon-action-row anim-item">
           <button
             type="button"
             className="icon-action"
@@ -490,9 +499,9 @@ export default function App() {
   }
 
   return (
-    <div className="app shell calc-screen">
+    <div className="app shell calc-screen anim-screen" key="calc">
       <div className="calc-panel">
-        <div className="toolbar">
+        <div className="toolbar anim-item">
           <button
             type="button"
             className="icon-btn danger"
@@ -505,11 +514,11 @@ export default function App() {
           <CurrencySwitch value={currency} onChange={setCurrency} />
         </div>
 
-        <section className="card">
+        <section className="card anim-item">
           <div className="card-top">
             <span className="label">MAHSULOT TANNARXI</span>
           </div>
-          <div className="price-row">
+          <div className="price-row" key={`price-${currency}`}>
             {currency === 'usd' ? <span className="currency">$</span> : null}
             <input
               className="price-input"
@@ -525,10 +534,12 @@ export default function App() {
           <div className="underline" />
         </section>
 
-        <section className="card">
+        <section className="card anim-item">
           <div className="card-top">
             <span className="label">BOSHLANG‘ICH TO‘LOV</span>
-            <span className="accent-blue">{initialPercent}%</span>
+            <span className="accent-blue anim-pop" key={initialPercent}>
+              {initialPercent}%
+            </span>
           </div>
           {editingInitial ? (
             <input
@@ -571,10 +582,10 @@ export default function App() {
           />
         </section>
 
-        <section className="card">
+        <section className="card anim-item">
           <div className="card-top">
             <span className="label">MUDDAT</span>
-            <span className="pill">
+            <span className="pill anim-pop" key={selectedPlan?.months ?? 0}>
               {selectedPlan ? `${selectedPlan.months} OY` : '—'}
             </span>
           </div>
@@ -590,16 +601,19 @@ export default function App() {
           />
         </section>
 
-        <section className="result">
+        <section className="result anim-item">
           <div>
             <div className="label">OYLIK TO‘LOV</div>
-            <div className="monthly">
+            <div className="monthly anim-pop" key={`m-${currency}-${calc.monthly}`}>
               {formatMoney(calc.monthly, currency)}
             </div>
           </div>
           <div className="jami">
             <div className="label">JAMI</div>
-            <div className="jami-value">
+            <div
+              className="jami-value anim-pop"
+              key={`j-${currency}-${Math.round(calc.jami)}`}
+            >
               {formatMoney(Math.round(calc.jami), currency)}
             </div>
           </div>
