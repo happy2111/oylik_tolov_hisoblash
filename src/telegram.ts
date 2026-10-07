@@ -1,6 +1,8 @@
 type TelegramWebApp = {
   ready: () => void
   expand: () => void
+  initData?: string
+  platform?: string
   setHeaderColor?: (color: string) => void
   setBackgroundColor?: (color: string) => void
   disableVerticalSwipes?: () => void
@@ -9,6 +11,19 @@ type TelegramWebApp = {
   MainButton?: {
     hide: () => void
   }
+}
+
+export function isTelegramMobileWebApp(): boolean {
+  const webApp = window.Telegram?.WebApp
+  if (!webApp?.initData) return false
+  const platform = (webApp.platform || '').toLowerCase()
+  return (
+    platform === 'ios' ||
+    platform === 'android' ||
+    platform === 'android_x' ||
+    // unknown platform inside Telegram still often blocks <a download>
+    platform === ''
+  )
 }
 
 declare global {

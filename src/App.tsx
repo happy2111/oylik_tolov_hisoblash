@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { toBlob, toPng } from 'html-to-image'
 import { fetchInstallmentSettings } from './api'
+import { isTelegramMobileWebApp } from './telegram'
 import {
   buildSchedule,
   calculateInstallment,
@@ -98,6 +99,7 @@ export default function App() {
   const [busyAction, setBusyAction] = useState<'share' | 'copy' | 'export' | null>(
     null,
   )
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
 
   const [priceInput, setPriceInput] = useState('1000')
   const [initialPayment, setInitialPayment] = useState(0)
@@ -313,10 +315,35 @@ export default function App() {
     setBusyAction('export')
     try {
       const dataUrl = await captureScheduleImage()
-      const link = document.createElement('a')
-      link.download = 'tolov-grafigi.png'
-      link.href = dataUrl
-      link.click()
+      const blob = await (await fetch(dataUrl)).blob()
+      const file = new File([blob], 'tolov-grafigi.png', { type: 'image/png' })
+
+      // Telegram / mobile WebView: <a download> usually blocked — use share sheet first
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'To‘lov grafigi',
+          })
+          return
+        } catch (err) {
+          if ((err as Error)?.name === 'AbortError') return
+        }
+      }
+
+      // Desktop / Telegram Desktop: <a download> usually works.
+      // Telegram iOS/Android WebView blocks it — show preview to long-press save.
+      if (!isTelegramMobileWebApp()) {
+        const link = document.createElement('a')
+        link.download = 'tolov-grafigi.png'
+        link.href = dataUrl
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+        return
+      }
+
+      setPreviewImage(dataUrl)
     } catch {
       window.alert('Rasmni eksport qilib bo‘lmadi')
     } finally {
@@ -432,126 +459,154 @@ export default function App() {
             <IconPhoto />
           </button>
         </div>
+
+        {previewImage ? (
+          <div
+            className="preview-overlay"
+            role="dialog"
+            aria-modal="true"
+            onClick={() => setPreviewImage(null)}
+          >
+            <div
+              className="preview-sheet"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <p className="preview-hint">
+                Rasmni saqlash uchun uzoq bosib turing
+              </p>
+              <img src={previewImage} alt="To‘lov grafigi" />
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={() => setPreviewImage(null)}
+              >
+                Yopish
+              </button>
+            </div>
+          </div>
+        ) : null}
       </div>
     )
   }
 
   return (
     <div className="app shell calc-screen">
-      <div className="toolbar">
-        <button
-          type="button"
-          className="icon-btn danger"
-          onClick={handleClear}
-          aria-label="Tozalash"
-          title="Tozalash"
-        >
-          <IconClear />
-        </button>
-        <CurrencySwitch value={currency} onChange={setCurrency} />
-      </div>
-
-      <section className="card">
-        <div className="card-top">
-          <span className="label">MAHSULOT TANNARXI</span>
-        </div>
-        <div className="price-row">
-          {currency === 'usd' ? <span className="currency">$</span> : null}
-          <input
-            className="price-input"
-            inputMode="decimal"
-            value={priceInput}
-            onChange={(e) => handlePriceChange(e.target.value)}
-            placeholder="0"
-          />
-          {currency === 'uzs' ? (
-            <span className="currency suffix">so&apos;m</span>
-          ) : null}
-        </div>
-        <div className="underline" />
-      </section>
-
-      <section className="card">
-        <div className="card-top">
-          <span className="label">BOSHLANG‘ICH TO‘LOV</span>
-          <span className="accent-blue">{initialPercent}%</span>
-        </div>
-        {editingInitial ? (
-          <input
-            ref={initialInputRef}
-            className="big-value-input green"
-            inputMode="decimal"
-            value={initialInput}
-            onChange={(e) =>
-              setInitialInput(e.target.value.replace(/[^\d.]/g, ''))
-            }
-            onBlur={commitInitialInput}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                commitInitialInput()
-              }
-              if (e.key === 'Escape') {
-                setEditingInitial(false)
-              }
-            }}
-          />
-        ) : (
+      <div className="calc-panel">
+        <div className="toolbar">
           <button
             type="button"
-            className="big-value green tap-edit"
-            onClick={startEditInitial}
+            className="icon-btn danger"
+            onClick={handleClear}
+            aria-label="Tozalash"
+            title="Tozalash"
           >
-            {formatAmount(clampedInitial)}
+            <IconClear />
           </button>
-        )}
-        <input
-          className="range"
-          type="range"
-          min={0}
-          max={productPrice || 0}
-          step={productPrice > 1000 ? 10 : 1}
-          value={clampedInitial}
-          disabled={productPrice <= 0}
-          onChange={(e) => handleInitialChange(Number(e.target.value))}
-        />
-      </section>
-
-      <section className="card">
-        <div className="card-top">
-          <span className="label">MUDDAT</span>
-          <span className="pill">
-            {selectedPlan ? `${selectedPlan.months} OY` : '—'}
-          </span>
+          <CurrencySwitch value={currency} onChange={setCurrency} />
         </div>
-        <input
-          className="range"
-          type="range"
-          min={0}
-          max={Math.max(plans.length - 1, 0)}
-          step={1}
-          value={planIndex}
-          disabled={plans.length === 0}
-          onChange={(e) => setPlanIndex(Number(e.target.value))}
-        />
-      </section>
 
-      <section className="result">
-        <div>
-          <div className="label">OYLIK TO‘LOV</div>
-          <div className="monthly">
-            {formatMoney(calc.monthly, currency)}
+        <section className="card">
+          <div className="card-top">
+            <span className="label">MAHSULOT TANNARXI</span>
           </div>
-        </div>
-        <div className="jami">
-          <div className="label">JAMI</div>
-          <div className="jami-value">
-            {formatMoney(Math.round(calc.jami), currency)}
+          <div className="price-row">
+            {currency === 'usd' ? <span className="currency">$</span> : null}
+            <input
+              className="price-input"
+              inputMode="decimal"
+              value={priceInput}
+              onChange={(e) => handlePriceChange(e.target.value)}
+              placeholder="0"
+            />
+            {currency === 'uzs' ? (
+              <span className="currency suffix">so&apos;m</span>
+            ) : null}
           </div>
-        </div>
-      </section>
+          <div className="underline" />
+        </section>
 
-      {error ? <p className="inline-error">{error}</p> : null}
+        <section className="card">
+          <div className="card-top">
+            <span className="label">BOSHLANG‘ICH TO‘LOV</span>
+            <span className="accent-blue">{initialPercent}%</span>
+          </div>
+          {editingInitial ? (
+            <input
+              ref={initialInputRef}
+              className="big-value-input green"
+              inputMode="decimal"
+              value={initialInput}
+              onChange={(e) =>
+                setInitialInput(e.target.value.replace(/[^\d.]/g, ''))
+              }
+              onBlur={commitInitialInput}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  commitInitialInput()
+                }
+                if (e.key === 'Escape') {
+                  setEditingInitial(false)
+                }
+              }}
+            />
+          ) : (
+            <button
+              type="button"
+              className="big-value green tap-edit"
+              onClick={startEditInitial}
+            >
+              {formatAmount(clampedInitial)}
+            </button>
+          )}
+          <input
+            className="range"
+            type="range"
+            min={0}
+            max={productPrice || 0}
+            step={productPrice > 1000 ? 10 : 1}
+            value={clampedInitial}
+            disabled={productPrice <= 0}
+            onChange={(e) => handleInitialChange(Number(e.target.value))}
+          />
+        </section>
+
+        <section className="card">
+          <div className="card-top">
+            <span className="label">MUDDAT</span>
+            <span className="pill">
+              {selectedPlan ? `${selectedPlan.months} OY` : '—'}
+            </span>
+          </div>
+          <input
+            className="range"
+            type="range"
+            min={0}
+            max={Math.max(plans.length - 1, 0)}
+            step={1}
+            value={planIndex}
+            disabled={plans.length === 0}
+            onChange={(e) => setPlanIndex(Number(e.target.value))}
+          />
+        </section>
+
+        <section className="result">
+          <div>
+            <div className="label">OYLIK TO‘LOV</div>
+            <div className="monthly">
+              {formatMoney(calc.monthly, currency)}
+            </div>
+          </div>
+          <div className="jami">
+            <div className="label">JAMI</div>
+            <div className="jami-value">
+              {formatMoney(Math.round(calc.jami), currency)}
+            </div>
+          </div>
+        </section>
+
+        {error ? <p className="inline-error">{error}</p> : null}
+      </div>
 
       <button
         type="button"
