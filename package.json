@@ -17,6 +17,7 @@
     "dotenv": "^18.0.6",
     "express": "^5.2.1",
     "grammy": "^1.46.0",
+    "html-to-image": "^1.11.13",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

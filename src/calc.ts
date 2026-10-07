@@ -1,5 +1,7 @@
 import type { CalcResult, InstallmentPlan, ScheduleRow } from './types'
 
+export type CurrencyMode = 'usd' | 'uzs'
+
 const UZ_MONTHS = [
   'Yan',
   'Fev',
@@ -52,7 +54,6 @@ function addMonths(date: Date, months: number): Date {
   const result = new Date(date.getTime())
   const day = result.getDate()
   result.setMonth(result.getMonth() + months)
-  // Handle month overflow (e.g. Jan 31 + 1 month)
   if (result.getDate() < day) {
     result.setDate(0)
   }
@@ -84,19 +85,26 @@ export function buildSchedule(
   })
 }
 
-export function formatMoney(value: number, symbol = '$'): string {
+export function formatAmount(value: number): string {
   const abs = Math.abs(value)
-  const formatted = Number.isInteger(abs)
+  return Number.isInteger(abs)
     ? abs.toLocaleString('en-US')
     : abs.toLocaleString('en-US', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 2,
       })
-  const sign = value < 0 ? '-' : ''
-  return `${sign}${symbol}${formatted}`
 }
 
-export function formatSignedMoney(value: number, symbol = '$'): string {
-  const prefix = value >= 0 ? '+' : '-'
-  return `${prefix}${formatMoney(Math.abs(value), symbol)}`
+/** `$` before number, `so'm` after number. */
+export function formatMoney(value: number, currency: CurrencyMode = 'usd'): string {
+  const sign = value < 0 ? '-' : ''
+  const amount = formatAmount(Math.abs(value))
+  if (currency === 'uzs') {
+    return `${sign}${amount} so'm`
+  }
+  return `${sign}$${amount}`
+}
+
+export function currencyLabel(currency: CurrencyMode): string {
+  return currency === 'usd' ? 'USD' : "so'm"
 }

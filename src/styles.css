@@ -57,6 +57,37 @@ input {
   background: var(--bg);
 }
 
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.currency-switch {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: #2c2c2e;
+  gap: 2px;
+}
+
+.currency-switch button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  min-height: 30px;
+  min-width: 48px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.currency-switch button.active {
+  background: #fff;
+  color: #000;
+}
+
 .card {
   background: var(--card);
   border-radius: 24px;
@@ -100,6 +131,13 @@ input {
   font-size: 40px;
   font-weight: 700;
   line-height: 1;
+  white-space: nowrap;
+}
+
+.currency.suffix {
+  font-size: 22px;
+  font-weight: 800;
+  opacity: 0.85;
 }
 
 .price-input {
@@ -112,6 +150,7 @@ input {
   font-weight: 800;
   line-height: 1.1;
   padding: 0;
+  min-width: 0;
 }
 
 .underline {
@@ -120,15 +159,35 @@ input {
   background: var(--line);
 }
 
-.big-value {
+.big-value,
+.big-value-input {
   font-size: 42px;
   font-weight: 800;
   line-height: 1.05;
   margin-bottom: 14px;
 }
 
-.big-value.green {
+.big-value.green,
+.big-value-input.green {
   color: var(--green);
+}
+
+.tap-edit {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 0;
+  cursor: text;
+}
+
+.big-value-input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  padding: 0;
 }
 
 .accent-blue {
@@ -185,25 +244,6 @@ input {
   opacity: 0.4;
 }
 
-.markup-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 10px;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.markup-row strong {
-  color: var(--text);
-  font-size: 15px;
-  font-weight: 800;
-}
-
 .result {
   display: flex;
   align-items: flex-end;
@@ -232,22 +272,37 @@ input {
   line-height: 1;
 }
 
-.btn-primary {
+.btn-primary,
+.btn-secondary {
   width: 100%;
   border: 0;
   border-radius: 18px;
-  background: #fff;
-  color: #000;
   min-height: 56px;
   font-size: 17px;
   font-weight: 800;
   cursor: pointer;
-  margin-top: 4px;
 }
 
-.btn-primary:disabled {
+.btn-primary {
+  background: #fff;
+  color: #000;
+}
+
+.btn-secondary {
+  background: #2c2c2e;
+  color: #fff;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
 .state {
@@ -269,40 +324,54 @@ input {
   font-weight: 600;
 }
 
-/* Schedule (light) */
+/* Schedule — same dark theme */
 .schedule-screen {
-  background: #fff;
-  color: #111;
-  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .schedule-header {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 18px;
+  margin-bottom: 2px;
 }
 
-.schedule-header h1 {
+.schedule-top {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.schedule-top h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 900;
   letter-spacing: -0.02em;
+  text-align: center;
 }
 
-.back-btn {
-  align-self: flex-start;
+.icon-btn {
+  width: 44px;
+  height: 44px;
   border: 0;
-  background: transparent;
-  color: #111;
-  font-size: 14px;
-  font-weight: 700;
-  padding: 0;
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 800;
   cursor: pointer;
 }
 
-.schedule-card {
-  background: #fff;
+.schedule-export-title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.schedule-meta {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 16px;
 }
 
 .schedule-table-head,
@@ -314,13 +383,13 @@ input {
 }
 
 .schedule-table-head {
-  color: #9ca3af;
+  color: var(--muted);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding-bottom: 12px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--line);
 }
 
 .schedule-table-head .right,
@@ -330,17 +399,21 @@ input {
 
 .schedule-row {
   padding: 16px 0;
-  border-bottom: 1px solid #eceff3;
+  border-bottom: 1px solid var(--line);
+}
+
+.schedule-row:last-child {
+  border-bottom: 0;
 }
 
 .schedule-row .muted {
-  color: #9ca3af;
+  color: var(--muted);
   font-weight: 600;
 }
 
 .schedule-row .date,
 .schedule-row .amount {
-  color: #111;
+  color: var(--text);
   font-weight: 800;
   font-size: 16px;
 }
@@ -348,15 +421,20 @@ input {
 @media (max-width: 380px) {
   .currency,
   .price-input,
-  .big-value {
+  .big-value,
+  .big-value-input {
     font-size: 34px;
   }
 
   .monthly {
-    font-size: 40px;
+    font-size: 36px;
   }
 
   .jami-value {
-    font-size: 22px;
+    font-size: 20px;
+  }
+
+  .schedule-top h1 {
+    font-size: 17px;
   }
 }
