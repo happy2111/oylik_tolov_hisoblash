@@ -4,6 +4,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import express from 'express'
 import { Bot, InlineKeyboard } from 'grammy'
+import { fetchInstallmentSettings, getErpConfig } from './erp.js'
 
 dotenv.config()
 
@@ -11,85 +12,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.resolve(__dirname, '..')
 
 const PORT = Number(process.env.PORT || 3080)
-const ERP_API_URL = (process.env.ERP_API_URL || 'https://api.erp.applepark.uz').replace(
-  /\/$/,
-  '',
-)
-const INTEGRATION_TOKEN = process.env.INTEGRATION_TOKEN || ''
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || ''
 const WEBAPP_URL = process.env.WEBAPP_URL || ''
-const CURRENCY_SYMBOL = process.env.CURRENCY_SYMBOL || '$'
-const CACHE_TTL_MS = 60_000
-
-type InstallmentPlan = {
-  id: string
-  months: number
-  coefficient: string | number
-}
-
-type InstallmentLimit = {
-  currencyId: string
-  currency?: { symbol?: string }
-  minInitialPayment?: string | number | null
-  maxAmount?: string | number | null
-}
-
-type InstallmentSettings = {
-  isActive: boolean
-  plans: InstallmentPlan[]
-  limits: InstallmentLimit[]
-}
-
-type CacheEntry = {
-  expiresAt: number
-  data: InstallmentSettings
-}
-
-let cache: CacheEntry | null = null
-
-async function fetchInstallmentSettings(): Promise<InstallmentSettings> {
-  if (!INTEGRATION_TOKEN) {
-    throw new Error('INTEGRATION_TOKEN is not configured')
-  }
-
-  if (cache && cache.expiresAt > Date.now()) {
-    return cache.data
-  }
-
-  const response = await fetch(`${ERP_API_URL}/integration/v1/installment-settings`, {
-    headers: {
-      Authorization: `Bearer ${INTEGRATION_TOKEN}`,
-      Accept: 'application/json',
-    },
-  })
-
-  if (!response.ok) {
-    const body = await response.text()
-    throw new Error(`ERP API ${response.status}: ${body.slice(0, 200)}`)
-  }
-
-  const payload = (await response.json()) as
-    | InstallmentSettings
-    | { success?: boolean; data?: InstallmentSettings }
-
-  const data =
-    payload && typeof payload === 'object' && 'data' in payload && payload.data
-      ? payload.data
-      : (payload as InstallmentSettings)
-
-  const normalized: InstallmentSettings = {
-    isActive: Boolean(data.isActive),
-    plans: Array.isArray(data.plans) ? data.plans : [],
-    limits: Array.isArray(data.limits) ? data.limits : [],
-  }
-
-  cache = {
-    expiresAt: Date.now() + CACHE_TTL_MS,
-    data: normalized,
-  }
-
-  return normalized
-}
 
 function startBot() {
   if (!TELEGRAM_BOT_TOKEN) {
@@ -136,9 +60,8 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.get('/api/config', (_req, res) => {
-  res.json({
-    currencySymbol: CURRENCY_SYMBOL,
-  })
+  const { currencySymbol } = getErpConfig()
+  res.json({ currencySymbol })
 })
 
 app.get('/api/installment-settings', async (_req, res) => {

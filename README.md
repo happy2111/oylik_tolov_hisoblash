@@ -15,7 +15,7 @@ npm run dev
 - UI (Vite): http://localhost:5173  
 - API proxy: http://localhost:3080/api/installment-settings  
 
-## Production
+## Production (VPS / Express)
 
 ```bash
 npm run build
@@ -24,6 +24,25 @@ npm start
 
 Express раздаёт `dist/` и поднимает Telegram-бота (если задан `TELEGRAM_BOT_TOKEN`).
 
+## Vercel
+
+Vite отдаёт только статику — API живёт в serverless-функциях `api/*`.
+
+В Vercel → Project → Settings → Environment Variables добавьте:
+
+- `INTEGRATION_TOKEN` (обязательно)
+- `ERP_API_URL` = `https://api.erp.applepark.uz`
+- `CURRENCY_SYMBOL` = `$`
+- `WEBAPP_URL` = `https://oylik-tolov-hisoblash.vercel.app` (для бота на отдельном хосте)
+
+После push проверьте:
+
+- https://oylik-tolov-hisoblash.vercel.app/api/health
+- https://oylik-tolov-hisoblash.vercel.app/api/config
+- https://oylik-tolov-hisoblash.vercel.app/api/installment-settings
+
+> Telegram bot (`grammY` long polling) на Vercel не крутится — только WebApp + API. Бота держите на VPS или через webhook отдельно.
+
 ## Env
 
 | Переменная | Описание |
@@ -31,7 +50,7 @@ Express раздаёт `dist/` и поднимает Telegram-бота (если
 | `PORT` | Порт Express (по умолчанию 3080) |
 | `ERP_API_URL` | `https://api.erp.applepark.uz` |
 | `INTEGRATION_TOKEN` | `erp_int_...` из ERP Settings → Integration API |
-| `TELEGRAM_BOT_TOKEN` | Токен бота от @BotFather |
+| `TELEGRAM_BOT_TOKEN` | Токен бота от @BotFather (только для Express/`npm start`) |
 | `WEBAPP_URL` | Публичный HTTPS URL WebApp |
 | `CURRENCY_SYMBOL` | Символ валюты в UI (`$`) |
 
