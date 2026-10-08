@@ -197,6 +197,8 @@ export default function App() {
 
   const shareText = useMemo(() => {
     const lines = [
+      'ApplePark',
+      '',
       `Mahsulot: ${formatMoney(productPrice, currency)}`,
       `Boshlang‘ich: ${formatMoney(clampedInitial, currency)} (${initialPercent}%)`,
       `Muddat: ${calc.months} oy`,
@@ -410,6 +412,14 @@ export default function App() {
         </header>
 
         <div className="card schedule-export anim-item" ref={scheduleRef}>
+          <div className="brand-row">
+            <img
+              src="/applepark-logo.png"
+              alt="ApplePark"
+              className="brand-logo"
+            />
+            <span className="brand-name">ApplePark</span>
+          </div>
           <div className="schedule-export-title">To‘lov grafigi</div>
           <div className="schedule-meta" key={`meta-${currency}`}>
             {calc.months} oy · oylik {formatMoney(calc.monthly, currency)}
@@ -502,16 +512,26 @@ export default function App() {
     <div className="app shell calc-screen anim-screen" key="calc">
       <div className="calc-panel">
         <div className="toolbar anim-item">
-          <button
-            type="button"
-            className="icon-btn danger"
-            onClick={handleClear}
-            aria-label="Tozalash"
-            title="Tozalash"
-          >
-            <IconClear />
-          </button>
-          <CurrencySwitch value={currency} onChange={setCurrency} />
+          <div className="brand-row header-brand">
+            <img
+              src="/applepark-logo.png"
+              alt="ApplePark"
+              className="brand-logo"
+            />
+            <span className="brand-name">ApplePark</span>
+          </div>
+          <div className="toolbar-actions">
+            <button
+              type="button"
+              className="icon-btn danger"
+              onClick={handleClear}
+              aria-label="Tozalash"
+              title="Tozalash"
+            >
+              <IconClear />
+            </button>
+            <CurrencySwitch value={currency} onChange={setCurrency} />
+          </div>
         </div>
 
         <section className="card anim-item">
