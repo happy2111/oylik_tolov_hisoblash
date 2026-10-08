@@ -419,7 +419,7 @@ export default function App() {
         <div className="card schedule-export anim-item" ref={scheduleRef}>
           <div className="export-brand">
             <img
-              src="/applepark-logo.png"
+              src="/logo.png"
               alt="ApplePark"
               className="brand-logo brand-logo-wide"
             />
@@ -520,7 +520,7 @@ export default function App() {
       <div className="calc-panel">
         <div className="toolbar anim-item">
           <img
-            src="/applepark-logo.png"
+            src="/logo.png"
             alt="ApplePark"
             className="brand-logo brand-logo-wide"
           />
