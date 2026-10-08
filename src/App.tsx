@@ -406,12 +406,12 @@ export default function App() {
             >
               ←
             </button>
-            <div className="schedule-heading">
+            {/* <div className="schedule-heading">
               <h1>To‘lov grafigi</h1>
               <p className="schedule-subtitle" key={`sub-${currency}`}>
                 {calc.months} oy · {formatMoney(calc.monthly, currency)} / oy
               </p>
-            </div>
+            </div> */}
             <CurrencySwitch value={currency} onChange={setCurrency} />
           </div>
         </header>
@@ -424,7 +424,7 @@ export default function App() {
               className="brand-logo brand-logo-wide"
             />
             <div className="export-brand-meta">
-              <div className="export-kicker">Rassrocha hisobi</div>
+              <div className="export-kicker">To‘lov grafigi</div>
               <div className="schedule-meta" key={`meta-${currency}`}>
                 {calc.months} oy · jami{' '}
                 {formatMoney(Math.round(calc.jami), currency)}
