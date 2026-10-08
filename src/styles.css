@@ -124,59 +124,41 @@ input {
   flex-shrink: 0;
 }
 
-.brand-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.header-brand {
-  flex: 1;
-}
-
 .brand-logo {
-  width: 36px;
   height: 36px;
+  width: auto;
+  max-width: 140px;
   object-fit: contain;
-  border-radius: 10px;
   flex-shrink: 0;
-  background: #111;
+  background: transparent;
+  border-radius: 0;
+  display: block;
 }
 
-.brand-name {
-  font-size: 17px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-}
-
-.schedule-export .brand-row {
-  margin-bottom: 14px;
-}
-
-.schedule-export .brand-logo {
-  width: 40px;
+.brand-logo-wide {
   height: 40px;
+  max-width: 160px;
 }
 
 .currency-switch {
   position: relative;
   display: inline-grid;
   grid-template-columns: 1fr 1fr;
-  padding: 3px;
-  border-radius: 999px;
-  background: #2c2c2e;
+  height: 44px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--card);
   gap: 0;
+  box-sizing: border-box;
 }
 
 .currency-pill {
   position: absolute;
-  top: 3px;
-  bottom: 3px;
-  left: 3px;
-  width: calc(50% - 3px);
-  border-radius: 999px;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  border-radius: 10px;
   background: #fff;
   transition: transform var(--dur) var(--ease-out);
   z-index: 0;
@@ -193,10 +175,10 @@ input {
   border: 0;
   background: transparent;
   color: var(--muted);
-  min-height: 30px;
-  min-width: 48px;
+  min-height: 36px;
+  min-width: 44px;
   padding: 0 12px;
-  border-radius: 999px;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
@@ -545,17 +527,30 @@ input {
 
 .schedule-top {
   display: grid;
-  grid-template-columns: 44px 1fr auto;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
 }
 
+.schedule-heading {
+  min-width: 0;
+}
+
 .schedule-top h1 {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 900;
   letter-spacing: -0.02em;
-  text-align: center;
+  text-align: left;
+  line-height: 1.15;
+}
+
+.schedule-subtitle {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .icon-btn {
@@ -586,17 +581,33 @@ input {
   color: var(--danger);
 }
 
-.schedule-export-title {
-  font-size: 18px;
+.export-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.export-brand-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.export-kicker {
+  font-size: 15px;
   font-weight: 900;
-  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .schedule-meta {
+  margin: 4px 0 0;
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
-  margin-bottom: 16px;
+  line-height: 1.2;
 }
 
 .schedule-table-head,

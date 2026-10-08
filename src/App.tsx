@@ -406,23 +406,30 @@ export default function App() {
             >
               ←
             </button>
-            <h1>To‘lov grafigi</h1>
+            <div className="schedule-heading">
+              <h1>To‘lov grafigi</h1>
+              <p className="schedule-subtitle" key={`sub-${currency}`}>
+                {calc.months} oy · {formatMoney(calc.monthly, currency)} / oy
+              </p>
+            </div>
             <CurrencySwitch value={currency} onChange={setCurrency} />
           </div>
         </header>
 
         <div className="card schedule-export anim-item" ref={scheduleRef}>
-          <div className="brand-row">
+          <div className="export-brand">
             <img
               src="/applepark-logo.png"
               alt="ApplePark"
-              className="brand-logo"
+              className="brand-logo brand-logo-wide"
             />
-            <span className="brand-name">ApplePark</span>
-          </div>
-          <div className="schedule-export-title">To‘lov grafigi</div>
-          <div className="schedule-meta" key={`meta-${currency}`}>
-            {calc.months} oy · oylik {formatMoney(calc.monthly, currency)}
+            <div className="export-brand-meta">
+              <div className="export-kicker">Rassrocha hisobi</div>
+              <div className="schedule-meta" key={`meta-${currency}`}>
+                {calc.months} oy · jami{' '}
+                {formatMoney(Math.round(calc.jami), currency)}
+              </div>
+            </div>
           </div>
           <div className="schedule-table-head">
             <span>№</span>
@@ -512,14 +519,11 @@ export default function App() {
     <div className="app shell calc-screen anim-screen" key="calc">
       <div className="calc-panel">
         <div className="toolbar anim-item">
-          <div className="brand-row header-brand">
-            <img
-              src="/applepark-logo.png"
-              alt="ApplePark"
-              className="brand-logo"
-            />
-            <span className="brand-name">ApplePark</span>
-          </div>
+          <img
+            src="/applepark-logo.png"
+            alt="ApplePark"
+            className="brand-logo brand-logo-wide"
+          />
           <div className="toolbar-actions">
             <button
               type="button"
